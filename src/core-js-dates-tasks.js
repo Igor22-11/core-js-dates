@@ -135,8 +135,14 @@ function isDateInPeriod(date, period) {
  * '1999-01-05T02:20:00.000Z' => '1/5/1999, 2:20:00 AM'
  * '2010-12-15T22:59:00.000Z' => '12/15/2010, 10:59:00 PM'
  */
-function formatDate(/* date */) {
-  throw new Error('Not implemented');
+function formatDate(date) {
+  const currentDate = new Date(date);
+  let hour = currentDate.getUTCHours();
+  const minute = String(currentDate.getUTCMinutes()).padStart(2, '0');
+  const second = String(currentDate.getUTCSeconds()).padStart(2, '0');
+  const halfADay = hour > 11 ? 'PM' : 'AM';
+  if (hour > 12) hour -= 12;
+  return `${currentDate.getUTCMonth() + 1}/${currentDate.getUTCDate()}/${currentDate.getUTCFullYear()}, ${hour}:${minute}:${second} ${halfADay}`;
 }
 
 /**
@@ -151,8 +157,16 @@ function formatDate(/* date */) {
  * 12, 2023 => 10
  * 1, 2024 => 8
  */
-function getCountWeekendsInMonth(/* month, year */) {
-  throw new Error('Not implemented');
+function getCountWeekendsInMonth(month, year) {
+  let count = 0;
+  let copyMonth = month;
+  copyMonth -= 1;
+  const date = new Date(year, copyMonth, 1);
+  while (date.getMonth() === copyMonth) {
+    if (date.getDay() === 0 || date.getDay() === 6) count += 1;
+    date.setDate(date.getDate() + 1);
+  }
+  return count;
 }
 
 /**
@@ -168,8 +182,16 @@ function getCountWeekendsInMonth(/* month, year */) {
  * Date(2024, 0, 31) => 5
  * Date(2024, 1, 23) => 8
  */
-function getWeekNumberByDate(/* date */) {
-  throw new Error('Not implemented');
+function getWeekNumberByDate(date) {
+  const startOfYear = new Date(date.getFullYear(), 0, 1);
+  const adjustingDays =
+    startOfYear.getDay() === 0 ? 6 : startOfYear.getDay() - 1;
+  const adjustedStartOfYear = new Date(startOfYear);
+  adjustedStartOfYear.setDate(startOfYear.getDate() - adjustingDays);
+  const differenceInDays = Math.floor(
+    (date - adjustedStartOfYear) / (24 * 3600 * 1000)
+  );
+  return Math.ceil((differenceInDays + 1) / 7);
 }
 
 /**
@@ -183,8 +205,14 @@ function getWeekNumberByDate(/* date */) {
  * Date(2024, 0, 13) => Date(2024, 8, 13)
  * Date(2023, 1, 1) => Date(2023, 9, 13)
  */
-function getNextFridayThe13th(/* date */) {
-  throw new Error('Not implemented');
+function getNextFridayThe13th(date) {
+  date.setDate(13);
+  for (;;) {
+    if (date.getDay() === 5) {
+      return new Date(date);
+    }
+    date.setMonth(date.getMonth() + 1);
+  }
 }
 
 /**
